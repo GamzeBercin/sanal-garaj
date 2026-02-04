@@ -1,0 +1,70 @@
+<!doctype html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sanal Garaj | Premium Koleksiyon</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="app-container">
+      <aside class="sidebar">
+        <div class="brand-header">
+          <i data-lucide="car-front"></i>
+          <h2>GARAGE</h2>
+        </div>
+        <ul id="brand-list"></ul>
+      </aside>
+
+      <main class="main-content">
+        <header class="stats-header">
+          <div class="header-left">
+            <h1 id="page-title">Genel Bakış</h1>
+            <p id="page-subtitle">Koleksiyon durumunu yönet.</p>
+          </div>
+
+          <div class="stats-cards">
+            <div class="stat-card">
+              <span class="stat-label">Toplam Model</span>
+              <span class="stat-value" id="total-count">0</span>
+            </div>
+            <div class="stat-card highlight">
+              <span class="stat-label">Sahip Olduğum</span>
+              <span class="stat-value" id="owned-count">0</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">Tamamlanma</span>
+              <span class="stat-value" id="completion-rate">%0</span>
+            </div>
+          </div>
+        </header>
+
+        <div class="view-controls">
+          <button class="btn active" id="btn-all" onclick="showAllModels()">
+            Tüm Modeller
+          </button>
+          <button class="btn" id="btn-owned" onclick="showMyCollection()">
+            Garajım
+          </button>
+          <button class="btn outline" id="btn-missing" onclick="showMissing()">
+            Eksikler
+          </button>
+        </div>
+
+        <div id="car-grid" class="car-grid"></div>
+      </main>
+    </div>
+
+    <script src="data.js"></script>
+    <script src="app.js"></script>
+
+    <script>
+      lucide.createIcons();
+    </script>
+  </body>
+</html>
