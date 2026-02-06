@@ -958,3 +958,35 @@ body {
     font-size: 0.9rem;
   }
 }
+@media (max-width: 768px) {
+  /* İstatistik kutularını kapsayan alan */
+  .stats-cards {
+    display: flex;
+    flex-wrap: nowrap; /* Asla alt satıra inme */
+    overflow-x: visible; /* Kaydırmayı KAPAT */
+    justify-content: space-between; /* Ekrana yay */
+    gap: 5px; /* Kutular arası boşluğu azalt */
+    width: 100%; /* Ekranı tam doldur */
+    padding-bottom: 0; /* Alttaki boşluğu sil */
+  }
+
+  /* Her bir kutu */
+  .stat-card {
+    flex: 1; /* Hepsi eşit genişlikte olsun */
+    min-width: 0; /* İçerik taşarsa kutuyu büyütme, sıkıştır */
+    padding: 10px 2px; /* İç boşluğu iyice azalt */
+  }
+
+  /* Rakamları biraz küçült sığsın */
+  .stat-value {
+    font-size: 1.2rem;
+    margin-bottom: 2px;
+  }
+
+  /* Alt yazıları (TOPLAM vb.) küçült */
+  .stat-label {
+    font-size: 0.55rem; /* Çok küçük yapalım ki taşmasın */
+    letter-spacing: 0; /* Harf aralığını kıs */
+    white-space: nowrap; /* Yazı alt satıra inmesin */
+  }
+}
