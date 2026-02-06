@@ -364,6 +364,30 @@ function setActiveButton(btnId) {
   const btn = document.getElementById(btnId);
   if (btn) btn.classList.add("active");
 }
+// --- MOBİL MENÜ YÖNETİMİ ---
+
+// 1. Overlay (Siyah Perde) Oluştur
+const overlay = document.createElement("div");
+overlay.className = "sidebar-overlay";
+overlay.onclick = toggleSidebar; // Perdeye tıklayınca menü kapansın
+document.body.appendChild(overlay);
+
+function toggleSidebar() {
+  const sidebar = document.querySelector(".sidebar");
+  const overlayEl = document.querySelector(".sidebar-overlay");
+
+  sidebar.classList.toggle("active");
+  overlayEl.classList.toggle("active");
+}
+
+// Bir markaya tıklayınca mobilde menü otomatik kapansın
+// (Mevcut kodun içine ekleme yapmıyoruz, olay dinleyicisi ekliyoruz)
+document.getElementById("brand-list").addEventListener("click", function (e) {
+  if (window.innerWidth <= 768) {
+    // Sadece mobildeysek
+    toggleSidebar(); // Menüyü kapat
+  }
+});
 // Başlat
 init();
 // --- EKSİK OLAN BUTON KOMUTLARI ---

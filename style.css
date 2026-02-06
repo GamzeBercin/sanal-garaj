@@ -828,3 +828,133 @@ body {
   color: white;
   box-shadow: 0 0 10px rgba(255, 68, 68, 0.4);
 }
+/* --- MOBİL UYUMLULUK (RESPONSIVE) --- */
+
+/* Mobil Menü Butonu (Masaüstünde Gizli) */
+.mobile-menu-btn {
+  display: none; /* Bilgisayarda görünmesin */
+  background: transparent;
+  border: none;
+  color: white;
+  margin-right: 15px;
+  cursor: pointer;
+}
+
+/* --- TELEFON EKRANI KURALLARI --- */
+@media (max-width: 768px) {
+  /* 1. ANA DÜZENİ DEĞİŞTİR */
+  .app-container {
+    display: block; /* Yan yana değil, üst üste dizilim */
+  }
+
+  /* 2. YAN MENÜYÜ GİZLE (DRAWER MENÜ YAP) */
+  .sidebar {
+    position: fixed;
+    top: 0;
+    left: -100%; /* Ekranın soluna sakla */
+    width: 80%; /* Ekranın %80'ini kaplasın */
+    height: 100vh; /* Tam boy */
+    z-index: 2000; /* Her şeyin üstünde */
+    transition: 0.3s ease; /* Kayarak gelsin */
+    box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
+  }
+
+  .sidebar.active {
+    left: 0; /* Butona basınca ekrana gelsin */
+  }
+
+  /* Menü açıldığında arkaya siyah perde atalım */
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 1999;
+    backdrop-filter: blur(3px);
+  }
+  .sidebar-overlay.active {
+    display: block;
+  }
+
+  /* 3. İÇERİK ALANI (GENİŞLİK FULLE) */
+  .main-content {
+    margin-left: 0;
+    width: 100%;
+    padding-bottom: 80px; /* Alttaki + butonu için boşluk */
+  }
+
+  /* 4. HEADER DÜZENLEMESİ */
+  .sticky-header {
+    padding: 15px; /* Boşlukları azalt */
+  }
+
+  .mobile-menu-btn {
+    display: inline-block; /* Mobilde görünür yap */
+  }
+
+  .header-left h1 {
+    font-size: 1.5rem; /* Başlığı küçült */
+  }
+
+  .header-left p {
+    display: none; /* Alt başlığı mobilde gizle (yer kaplamasın) */
+  }
+
+  /* 5. İSTATİSTİKLER (KAYDIRILABİLİR YAP) */
+  .stats-header {
+    gap: 15px;
+    flex-direction: row; /* Yan yana kalsın */
+    align-items: center;
+    flex-wrap: nowrap; /* Asla alt satıra geçmesin */
+  }
+
+  .stats-cards {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto; /* Sağa sola kaydırılabilsin */
+    padding-bottom: 5px;
+    width: 100%; /* Ekrana yay */
+    justify-content: flex-start; /* Sola yasla */
+  }
+
+  /* Scroll çubuğunu gizle (daha şık durur) */
+  .stats-cards::-webkit-scrollbar {
+    display: none;
+  }
+
+  .stat-card {
+    min-width: 100px; /* Kartlar çok küçülmesin */
+    padding: 10px 5px;
+  }
+
+  .stat-value {
+    font-size: 1.4rem;
+  }
+  .stat-label {
+    font-size: 0.6rem;
+  }
+
+  /* 6. FİLTRE BUTONLARI */
+  .view-controls {
+    width: 100%;
+  }
+  .view-controls .btn {
+    padding: 8px 10px;
+    font-size: 0.8rem;
+  }
+
+  /* 7. ARABA LİSTESİ */
+  .car-grid {
+    grid-template-columns: repeat(2, 1fr); /* Mobilde yan yana 2 araba */
+    gap: 10px;
+    padding: 10px;
+  }
+
+  /* Arabaların içindeki yazıları küçült */
+  .car-info h3 {
+    font-size: 0.9rem;
+  }
+}
