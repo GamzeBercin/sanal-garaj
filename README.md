@@ -58,4 +58,4 @@ Bu projeyi kendi bilgisayarınızda çalıştırmak için:
 
 ---
 
-Made with ❤️ by [Bercin]
+Made with ❤️ by Bercin
