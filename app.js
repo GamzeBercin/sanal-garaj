@@ -1,13 +1,14 @@
-// app.js - ARDA'NIN GARAJI (Final Tam Sürüm)
+// app.js - ARDA'NIN GARAJI (Dinamik Ekleme Modlu v2.0)
 
-// 1. Verileri ve Ayarları Yükle
+// 1. Verileri Yükle (Hem Data.js Hem Manuel Eklenenler)
 let myOwnedIDs = JSON.parse(localStorage.getItem("myGarageCatalogIDs")) || [];
+let myCustomCars = JSON.parse(localStorage.getItem("myCustomGarageCars")) || []; // Elle eklenenler
 let fullCatalog = [];
-let filteredCatalog = []; // Filtrelenmiş aktif liste
+let filteredCatalog = [];
 let expandedYear = null;
 let currentBrand = null;
 let currentView = "all";
-let currentMakerFilter = "all"; // Varsayılan: Hepsi
+let currentMakerFilter = "all";
 
 // DOM Elementleri
 const brandListEl = document.getElementById("brand-list");
@@ -16,27 +17,21 @@ const pageTitleEl = document.getElementById("page-title");
 const pageSubtitleEl = document.getElementById("page-subtitle");
 const sidebarTitle = document.querySelector(".brand-header h2");
 
-// --- KİŞİSELLEŞTİRME 1: SOL MENÜ BAŞLIĞI ---
 if (sidebarTitle) sidebarTitle.innerText = "ARDA'NIN GARAJI";
 
 function init() {
-  // Veri kontrolü
-  if (typeof CATALOG_SOURCE === "undefined" || CATALOG_SOURCE.length === 0) {
-    console.warn("Veri bulunamadı. Lütfen data.js dosyasını kontrol et.");
-  } else {
-    fullCatalog = CATALOG_SOURCE;
-  }
+  // 1. Katalog Verisi (data.js) + Özel Veriyi (Custom) Birleştir
+  let staticData = typeof CATALOG_SOURCE !== "undefined" ? CATALOG_SOURCE : [];
+  fullCatalog = [...staticData, ...myCustomCars]; // Hepsini tek havuzda topla
 
-  // Üretici Filtre Butonlarını (Hot Wheels / Matchbox) Oluştur
+  // 2. Arayüzü Çiz
   renderMakerControls();
-
-  // İlk başta filtreleme yap (Hepsi)
   applyMakerFilter("all");
 }
 
-// --- ÜRETİCİ FİLTRESİ (SİHİRLİ KISIM) ---
+// --- ÜRETİCİ FİLTRESİ (OTOMATİK ALGILAMA) ---
+// --- ÜRETİCİ FİLTRESİ (RENK DESTEKLİ) ---
 function renderMakerControls() {
-  // HTML'de yer yoksa sidebar'ın tepesine ekle
   let controlsDiv = document.querySelector(".maker-controls");
   if (!controlsDiv) {
     controlsDiv = document.createElement("div");
@@ -45,14 +40,28 @@ function renderMakerControls() {
     header.parentNode.insertBefore(controlsDiv, header.nextSibling);
   }
 
-  // Mevcut üreticileri bul
+  // Listede hangi markalar varsa onları bul
   const makers = [...new Set(fullCatalog.map((c) => c.maker))].sort();
 
-  // Butonları oluştur
+  // HEPSİ Butonu
   let html = `<div class="maker-btn ${currentMakerFilter === "all" ? "active" : ""}" onclick="applyMakerFilter('all')">HEPSİ</div>`;
 
   makers.forEach((maker) => {
+    // --- RENK AYARLARI ---
+    let customStyle = "";
+
+    // Eğer buton aktifse ve markası Greenlight ise
+    if (currentMakerFilter === maker && maker === "Greenlight") {
+      customStyle = `background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-color: #38ef7d; color: white; box-shadow: 0 0 15px rgba(56,239,125,0.4);`;
+    }
+    // Eğer buton aktifse ve markası Tarmac ise (Örnek)
+    else if (currentMakerFilter === maker && maker === "Tarmac") {
+      customStyle = `background: linear-gradient(135deg, #2b5876 0%, #4e4376 100%); border-color: #4e4376; color: white;`;
+    }
+
+    // Butonu oluştur
     html += `<div class="maker-btn ${currentMakerFilter === maker ? "active" : ""}" 
+                      style="${customStyle}"
                       data-maker="${maker}" 
                       onclick="applyMakerFilter('${maker}')">
                       ${maker.toUpperCase()}
@@ -64,87 +73,131 @@ function renderMakerControls() {
 
 function applyMakerFilter(maker) {
   currentMakerFilter = maker;
-
-  // Veriyi süzüyoruz
   if (maker === "all") {
     filteredCatalog = fullCatalog;
   } else {
     filteredCatalog = fullCatalog.filter((c) => c.maker === maker);
   }
-
-  // Seçim sıfırla
   expandedYear = null;
   currentBrand = null;
-
-  // Arayüzü yenile
-  renderMakerControls(); // Buton renklerini güncelle
-  renderSidebarTree(); // Sol menüyü yeni verilere göre çiz
-  refreshView(); // Sağ ekranı temizle
-  updateStats(); // İstatistikleri güncelle
+  renderMakerControls();
+  renderSidebarTree();
+  refreshView();
+  updateStats();
 }
 
-// --- SOL MENÜ (AĞAÇ YAPISI) ---
-function renderSidebarTree() {
-  brandListEl.innerHTML = "";
+// --- MANUEL EKLEME FONKSİYONLARI ---
+function openAddModal() {
+  document.getElementById("addModal").style.display = "flex";
+}
+function closeAddModal() {
+  document.getElementById("addModal").style.display = "none";
+}
 
-  if (filteredCatalog.length === 0) {
-    brandListEl.innerHTML = `<div style="padding:15px; color:#666; font-size:0.8rem;">Bu markada araç bulunamadı.</div>`;
+function saveNewCar() {
+  // 1. Girdileri Al
+  const maker = document.getElementById("inp-maker").value.trim();
+  const brand = document.getElementById("inp-brand").value.trim();
+  const model = document.getElementById("inp-model").value.trim();
+  const year = parseInt(document.getElementById("inp-year").value);
+  const color = document.getElementById("inp-color").value.trim();
+  const series = document.getElementById("inp-series").value.trim();
+
+  if (!maker || !brand || !model) {
+    alert("Lütfen en az Üretici, Marka ve Model adını yazın!");
     return;
   }
 
-  // Sadece filtrelenmiş katalogdaki yılları al
+  // 2. Yeni Araç Objesi Oluştur
+  // ID'nin başına 'CUSTOM-' koyuyoruz ki karışmasın
+  const newCar = {
+    id: `CUSTOM-${Date.now()}`,
+    maker: capitalize(maker), // Baş harfi büyüt (greenlight -> Greenlight)
+    brand: capitalize(brand),
+    model: model,
+    year: year || 2026,
+    color: color,
+    series: series || "Özel Giriş",
+  };
+
+  // 3. Listeye Ekle ve Kaydet
+  myCustomCars.push(newCar);
+  localStorage.setItem("myCustomGarageCars", JSON.stringify(myCustomCars));
+
+  // 4. Otomatik olarak "Sahip Olunanlara" da ekle
+  myOwnedIDs.push(newCar.id);
+  localStorage.setItem("myGarageCatalogIDs", JSON.stringify(myOwnedIDs));
+
+  // 5. Ekranı Yenile
+  closeAddModal();
+  // Inputları temizle
+  document.getElementById("inp-maker").value = "";
+  document.getElementById("inp-brand").value = "";
+  document.getElementById("inp-model").value = "";
+
+  alert(`Harika! ${newCar.maker} listesine eklendi.`);
+  init(); // Sistemi yeniden başlat ki yeni butonlar gelsin
+}
+
+function deleteCustomCar(id) {
+  if (!confirm("Bu aracı tamamen silmek istiyor musun?")) return;
+
+  // 1. Listeden Sil
+  myCustomCars = myCustomCars.filter((c) => c.id !== id);
+  localStorage.setItem("myCustomGarageCars", JSON.stringify(myCustomCars));
+
+  // 2. Sahip olunanlardan da sil
+  myOwnedIDs = myOwnedIDs.filter((oid) => oid !== id);
+  localStorage.setItem("myGarageCatalogIDs", JSON.stringify(myOwnedIDs));
+
+  init(); // Yenile
+}
+
+function capitalize(s) {
+  return s.charAt(0).toUpperCase() + s.slice(1);
+}
+
+// --- SOL MENÜ VE LİSTELEME ---
+function renderSidebarTree() {
+  brandListEl.innerHTML = "";
+  if (filteredCatalog.length === 0) {
+    brandListEl.innerHTML = `<div style="padding:15px; color:#666;">Araç bulunamadı.</div>`;
+    return;
+  }
   const years = [...new Set(filteredCatalog.map((c) => c.year))].sort(
     (a, b) => b - a,
   );
 
   years.forEach((year) => {
     const yearCars = filteredCatalog.filter((c) => c.year === year);
-    const totalInYear = yearCars.length;
-    const ownedInYear = yearCars.filter((c) =>
-      myOwnedIDs.includes(c.id),
-    ).length;
-
     const groupDiv = document.createElement("div");
     groupDiv.className = `year-group ${expandedYear === year ? "expanded" : ""}`;
 
     const headerDiv = document.createElement("div");
     headerDiv.className = "year-header";
-    headerDiv.onclick = () => toggleYear(year);
-
-    const isComplete = totalInYear > 0 && totalInYear === ownedInYear;
-    const iconColor = isComplete ? "#4CAF50" : "var(--text-muted)";
-
-    headerDiv.innerHTML = `
-            <span>${year}</span>
-            <div style="display:flex; align-items:center; gap:10px;">
-                <span style="font-size:0.75rem; opacity:0.6;">${ownedInYear}/${totalInYear}</span>
-                <i data-lucide="chevron-down" style="color:${iconColor}"></i>
-            </div>
-        `;
+    headerDiv.innerHTML = `<span>${year}</span> <i data-lucide="chevron-down"></i>`;
+    headerDiv.onclick = () => {
+      expandedYear = expandedYear === year ? null : year;
+      currentBrand = null;
+      renderSidebarTree();
+      refreshView();
+    };
 
     const subListDiv = document.createElement("div");
     subListDiv.className = "sub-brand-list";
 
-    const brandsInYear = [...new Set(yearCars.map((c) => c.brand))].sort();
-
-    brandsInYear.forEach((brand) => {
-      const brandCars = yearCars.filter((c) => c.brand === brand);
-      const bTotal = brandCars.length;
-      const bOwned = brandCars.filter((c) => myOwnedIDs.includes(c.id)).length;
-
+    const brands = [...new Set(yearCars.map((c) => c.brand))].sort();
+    brands.forEach((brand) => {
       const itemDiv = document.createElement("div");
       itemDiv.className = `sub-brand-item ${currentBrand === brand && expandedYear === year ? "active" : ""}`;
+      itemDiv.innerText = brand;
       itemDiv.onclick = (e) => {
         e.stopPropagation();
-        selectBrand(year, brand);
+        expandedYear = year;
+        currentBrand = brand;
+        renderSidebarTree();
+        refreshView();
       };
-
-      const badge =
-        bOwned === bTotal && bTotal > 0
-          ? `<span style="color:#4CAF50;">★</span>`
-          : `${bOwned}/${bTotal}`;
-
-      itemDiv.innerHTML = `<span>${brand}</span> <span style="font-size:0.7rem; opacity:0.5;">${badge}</span>`;
       subListDiv.appendChild(itemDiv);
     });
 
@@ -152,159 +205,127 @@ function renderSidebarTree() {
     groupDiv.appendChild(subListDiv);
     brandListEl.appendChild(groupDiv);
   });
-
   if (window.lucide) lucide.createIcons();
 }
 
-// --- GÖRÜNÜM VE OLAYLAR ---
-function toggleYear(year) {
-  if (expandedYear === year) {
-    expandedYear = null;
-    currentBrand = null;
-  } else {
-    expandedYear = year;
-    currentBrand = null;
-  }
-  renderSidebarTree();
-  refreshView();
-}
-
-function selectBrand(year, brand) {
-  expandedYear = year;
-  currentBrand = brand;
-  renderSidebarTree();
-  refreshView();
-}
-
 function refreshView() {
-  // --- KİŞİSELLEŞTİRME 2: KARŞILAMA EKRANI ---
-  if (!expandedYear) {
+  // 1. Temel Listeyi Al (Seçili üreticiye göre filtrelenmiş hali)
+  // Kopyasını alıyoruz ki orijinal dizi bozulmasın
+  let list = [...filteredCatalog];
+
+  // 2. Eğer yıl veya marka seçiliyse listeyi daralt
+  if (expandedYear) {
+    list = list.filter((c) => c.year === expandedYear);
+    if (currentBrand) {
+      list = list.filter((c) => c.brand === currentBrand);
+    }
+  }
+
+  // 3. Görünüm Modunu Uygula (Garajım / Eksikler)
+  if (currentView === "owned") {
+    list = list.filter((c) => myOwnedIDs.includes(c.id));
+  } else if (currentView === "missing") {
+    list = list.filter((c) => !myOwnedIDs.includes(c.id));
+  }
+
+  // --- KARAR ANI: Karşılama Ekranı mı, Liste mi? ---
+
+  // Eğer Yıl seçili değilse VE Mod "Hepsi" ise -> Karşılama Ekranı göster.
+  // (Ama Garajım veya Eksikler seçiliyse burayı atlayıp listeyi gösterecek!)
+  if (!expandedYear && currentView === "all") {
     carGridEl.innerHTML = `<div style="padding:40px; text-align:center; color:#555;">
-            <p style="font-size:1.5rem; margin-bottom:10px;">👋 Arda'nın Koleksiyonuna Hoşgeldin</p>
-            <p>Yukarıdan bir <b>Marka</b> seç veya soldan bir <b>Yıl</b> açarak garajını gez.</p>
+            <p style="font-size:1.5rem;">👋 Arda'nın Koleksiyonuna Hoşgeldin</p>
+            <p>Sağ alttaki <b>+</b> butonuna basarak yeni araç ekleyebilirsin!</p>
+            <br>
+            <p>Yukarıdaki <b>"GARAJIM"</b> butonuna basarak tüm yıllardaki arabalarını tek listede görebilirsin.</p>
         </div>`;
     pageTitleEl.innerText = "Arda'nın Koleksiyonu";
     pageSubtitleEl.innerText = "Genel Bakış";
     return;
   }
 
-  let list = [];
-  let title = "";
-  let subtitle = "";
-
-  // Filtrelenmiş katalog üzerinden işlem yap
-  if (currentBrand) {
-    list = filteredCatalog.filter(
-      (c) => c.year === expandedYear && c.brand === currentBrand,
-    );
-    title = currentBrand;
-    subtitle = `${expandedYear} | ${currentMakerFilter === "all" ? "Tüm Markalar" : currentMakerFilter}`;
+  // --- BAŞLIKLARI AYARLA (Dinamik Başlıklar) ---
+  if (!expandedYear) {
+    // GLOBAL GÖRÜNÜM (Yıl seçili değilken)
+    if (currentView === "owned") {
+      pageTitleEl.innerText = "Tüm Koleksiyonum"; // Başlık havalı olsun
+      pageSubtitleEl.innerText = `Toplam ${list.length} parça araç.`;
+    } else if (currentView === "missing") {
+      pageTitleEl.innerText = "Arananlar Listesi";
+      pageSubtitleEl.innerText = `Toplam ${list.length} eksik parça.`;
+    }
   } else {
-    list = filteredCatalog.filter((c) => c.year === expandedYear);
-    title = `${expandedYear} Özeti`;
-    subtitle = "Seçili yılın tüm araçları listeleniyor.";
+    // YIL BAZLI GÖRÜNÜM
+    if (currentBrand) {
+      pageTitleEl.innerText = currentBrand;
+    } else {
+      pageTitleEl.innerText = `${expandedYear} Yılı`;
+    }
+
+    let subText =
+      currentMakerFilter === "all" ? "Tüm Markalar" : currentMakerFilter;
+    if (currentView === "owned") subText += " (Garajım)";
+    if (currentView === "missing") subText += " (Eksikler)";
+    pageSubtitleEl.innerText = subText;
   }
 
-  if (currentView === "owned") {
-    list = list.filter((c) => myOwnedIDs.includes(c.id));
-    subtitle += " (Garajım)";
-  } else if (currentView === "missing") {
-    list = list.filter((c) => !myOwnedIDs.includes(c.id));
-    subtitle += " (Eksikler)";
+  // 4. Listeyi Ekrana Bas
+  // (Eğer liste çok uzunsa tarayıcıyı dondurmaması için sıralama yapalım)
+  if (!currentBrand) {
+    // Markaya göre alfabetik sırala ki güzel görünsün
+    list.sort((a, b) => a.brand.localeCompare(b.brand));
   }
 
-  // --- KİŞİSELLEŞTİRME 3: SAYFA BAŞLIĞI ---
-  if (currentMakerFilter === "all" && !currentBrand) {
-    // Özel bir başlık yoksa genel başlığı kullan
-    // Ancak yukarıda "title" değişkeni zaten ayarlandığı için buraya dokunmuyoruz.
-  }
-
-  pageTitleEl.innerText = title;
-  pageSubtitleEl.innerText = subtitle;
   renderCarList(list);
 }
 
 function renderCarList(list) {
   carGridEl.innerHTML = "";
-
   if (list.length === 0) {
-    let msg = "Araç bulunamadı.";
-    if (currentView === "owned") msg = "Henüz eklenmiş araç yok.";
-    if (currentView === "missing") msg = "Tebrikler! Hepsini topladın.";
-    carGridEl.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:#666; margin-top:40px;">${msg}</div>`;
+    carGridEl.innerHTML = `<div style="grid-column:1/-1; text-align:center; color:#666;">Burada araç yok.</div>`;
     return;
   }
 
-  if (!currentBrand) list.sort((a, b) => a.brand.localeCompare(b.brand));
-
   list.forEach((car) => {
     const isOwned = myOwnedIDs.includes(car.id);
+    const isCustom = car.id.toString().startsWith("CUSTOM"); // Bu araç elle mi eklendi?
+
     const card = document.createElement("div");
     card.className = `car-card ${isOwned ? "owned" : ""}`;
 
-    const checkIcon = `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`;
-
-    // Marka etiketi
-    const makerTag = `<div style="font-size:0.6rem; color:#888; text-transform:uppercase; letter-spacing:1px; margin-bottom:2px;">${car.maker}</div>`;
-    const brandTag = !currentBrand
-      ? `<div style="font-size:0.75rem; color:var(--accent-red); font-weight:bold; margin-bottom:4px;">${car.brand}</div>`
+    // Kart İçeriği
+    let deleteButtonHtml = isCustom
+      ? `<button class="delete-btn" onclick="deleteCustomCar('${car.id}')">SİL</button>`
       : "";
 
     card.innerHTML = `
             <div class="car-info">
-                ${makerTag}
-                ${brandTag}
+                <div style="font-size:0.6rem; color:#888;">${car.maker.toUpperCase()}</div>
+                <div style="font-size:0.75rem; color:var(--accent-red); font-weight:bold;">${car.brand}</div>
                 <h3>${car.model}</h3>
-                <div style="margin-top:8px; font-size:0.75rem; color:#888;">
-                    ${car.series ? `<span>${car.series}</span>` : ""}
-                    ${car.color ? `<span style="display:block; margin-top:2px; opacity:0.7;">🎨 ${car.color}</span>` : ""}
+                <div style="margin-top:5px; font-size:0.7rem; color:#666;">
+                    ${car.series || ""} ${car.color ? "• " + car.color : ""}
                 </div>
+                ${deleteButtonHtml}
             </div>
             <label class="checkbox-wrapper">
                 <input type="checkbox" ${isOwned ? "checked" : ""} onchange="toggleCar('${car.id}')">
-                <span class="custom-checkbox">${checkIcon}</span>
+                <span class="custom-checkbox">✔</span>
             </label>
         `;
     carGridEl.appendChild(card);
   });
 }
 
-// --- İŞLEMLER ---
 function toggleCar(id) {
   if (myOwnedIDs.includes(id)) {
-    myOwnedIDs = myOwnedIDs.filter((savedId) => savedId !== id);
+    myOwnedIDs = myOwnedIDs.filter((sid) => sid !== id);
   } else {
     myOwnedIDs.push(id);
   }
   localStorage.setItem("myGarageCatalogIDs", JSON.stringify(myOwnedIDs));
-
   refreshView();
-  renderSidebarTree();
   updateStats();
-}
-
-function showAllModels() {
-  currentView = "all";
-  setActiveButton("btn-all");
-  refreshView();
-}
-function showMyCollection() {
-  currentView = "owned";
-  setActiveButton("btn-owned");
-  refreshView();
-}
-function showMissing() {
-  currentView = "missing";
-  setActiveButton("btn-missing");
-  refreshView();
-}
-
-function setActiveButton(btnId) {
-  document
-    .querySelectorAll(".view-controls .btn")
-    .forEach((b) => b.classList.remove("active"));
-  const btn = document.getElementById(btnId);
-  if (btn) btn.classList.add("active");
 }
 
 function updateStats() {
@@ -316,5 +337,33 @@ function updateStats() {
   document.getElementById("owned-count").textContent = owned;
   document.getElementById("completion-rate").textContent = `%${percentage}`;
 }
+function showAllModels() {
+  currentView = "all";
+  setActiveButton("btn-all");
+  refreshView();
+}
 
+function showMyCollection() {
+  currentView = "owned";
+  setActiveButton("btn-owned");
+  refreshView();
+}
+
+function showMissing() {
+  currentView = "missing";
+  setActiveButton("btn-missing");
+  refreshView();
+}
+
+function setActiveButton(btnId) {
+  // Tüm butonların rengini normale döndür
+  const buttons = document.querySelectorAll(".view-controls .btn, .filter-btn");
+  if (buttons) buttons.forEach((b) => b.classList.remove("active"));
+
+  // Tıklanan butonu parlat
+  const btn = document.getElementById(btnId);
+  if (btn) btn.classList.add("active");
+}
+// Başlat
 init();
+// --- EKSİK OLAN BUTON KOMUTLARI ---

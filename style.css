@@ -123,13 +123,102 @@ body {
 }
 
 /* İstatistikler */
+/* --- HEADER YERLEŞİMİ (SİMETRİK VE FERAH) --- */
+
+/* Kapsayıcı Kutu */
 .stats-header {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  margin-bottom: 40px;
-  border-bottom: 1px solid var(--border-metal);
-  padding-bottom: 25px;
+  justify-content: space-between; /* İki uca yasla */
+  align-items: center; /* Dikeyde ortala */
+  flex-wrap: wrap; /* Mobilde aşağı kaysın */
+  gap: 30px; /* Aralarında boşluk bırak */
+  width: 100%; /* Genişliği fulle */
+  max-width: 1200px; /* Çok geniş ekranda dağılmasın */
+  margin: 0 auto 20px auto; /* Ortala */
+}
+
+/* Sol Taraf: Başlık ve Alt Başlık */
+.header-left {
+  flex: 1; /* Boş alanı kaplasın */
+  min-width: 250px; /* Çok küçülmesin */
+}
+
+.header-left h1 {
+  font-size: 2.2rem; /* Başlığı büyüt */
+  font-weight: 800;
+  letter-spacing: -1px;
+  margin: 0;
+  color: white;
+}
+
+.header-left p {
+  color: #888;
+  margin-top: 8px;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+/* Sağ Taraf: İstatistik Kutuları */
+.stats-cards {
+  display: flex;
+  gap: 15px;
+  flex-shrink: 0; /* Küçülüp sıkışmasınlar */
+}
+
+/* --- KUTU TASARIMI (MODERN KARTLAR) --- */
+.stat-card {
+  background: #23232d; /* Biraz daha açık gri */
+  padding: 15px 25px; /* İç boşluğu artır */
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  text-align: center;
+  min-width: 110px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2); /* Yumuşak gölge */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: white;
+  line-height: 1;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  font-size: 0.7rem;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* MOBİL UYUMLULUK (TELEFONDA DÜZGÜN GÖRÜNSÜN) */
+@media (max-width: 768px) {
+  .stats-header {
+    flex-direction: column; /* Alt alta diz */
+    align-items: flex-start; /* Sola yasla */
+    gap: 20px;
+  }
+
+  .stats-cards {
+    width: 100%; /* Genişliği fulle */
+    justify-content: space-between; /* Eşit dağıt */
+  }
+
+  .stat-card {
+    flex: 1; /* Kutular eşit büyüsün */
+    padding: 10px; /* Mobilde biraz küçült */
+    min-width: auto;
+  }
+
+  .stat-value {
+    font-size: 1.4rem;
+  } /* Sayıları küçült */
+  .stat-label {
+    font-size: 0.6rem;
+  }
 }
 #page-title {
   font-size: 2.5rem;
@@ -146,18 +235,7 @@ body {
   display: flex;
   gap: 20px;
 }
-.stat-card {
-  background: linear-gradient(145deg, var(--bg-card), #1b1d22);
-  padding: 15px 30px;
-  border-radius: 10px;
-  text-align: center;
-  border: 1px solid var(--border-metal);
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-  min-width: 130px;
-}
-.stat-card.highlight {
-  border-bottom: 3px solid var(--accent-red);
-}
+
 .stat-label {
   display: block;
   font-size: 0.75rem;
@@ -170,45 +248,6 @@ body {
   font-size: 1.8rem;
   font-weight: 700;
   color: white;
-}
-
-/* Butonlar */
-.view-controls {
-  margin-bottom: 30px;
-  display: flex;
-  gap: 15px;
-}
-.btn {
-  padding: 12px 25px;
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 600;
-  font-size: 0.9rem;
-  background: var(--bg-metal);
-  color: var(--text-muted);
-  border: 1px solid var(--border-metal);
-  transition: 0.3s;
-}
-.btn:hover {
-  border-color: white;
-  color: white;
-}
-.btn.active {
-  background: var(--accent-red);
-  color: white;
-  border-color: var(--accent-red);
-  box-shadow: 0 0 15px var(--accent-glow);
-}
-.btn.outline {
-  border: 1px solid var(--accent-red);
-  background: transparent;
-  color: var(--accent-red);
-}
-.btn.outline:hover {
-  background: var(--accent-red);
-  color: white;
-  box-shadow: 0 0 15px var(--accent-glow);
 }
 
 /* --- KART TASARIMI --- */
@@ -472,4 +511,320 @@ body {
   background: #11998e;
   color: white !important;
   border-color: #38ef7d;
+}
+/* --- EKLEME MODÜLÜ TASARIMI --- */
+
+/* Yuvarlak Ekleme Butonu (FAB) */
+.fab-btn {
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  width: 60px;
+  height: 60px;
+  background: linear-gradient(135deg, #007bff, #00d4ff);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 10px 20px rgba(0, 123, 255, 0.4);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s;
+  z-index: 1000;
+}
+.fab-btn:hover {
+  transform: scale(1.1) rotate(90deg);
+}
+
+/* Modal Arka Planı */
+.modal-overlay {
+  display: none; /* Gizli başlar */
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(5px);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Modal Kutusu */
+.modal-content {
+  background: #1e1e24;
+  padding: 30px;
+  border-radius: 20px;
+  width: 90%;
+  max-width: 400px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.modal-content h2 {
+  color: white;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+/* Form Elemanları */
+.input-group {
+  margin-bottom: 15px;
+}
+.input-group label {
+  display: block;
+  color: #aaa;
+  font-size: 0.8rem;
+  margin-bottom: 5px;
+}
+.input-group input {
+  width: 100%;
+  padding: 12px;
+  background: #2b2b36;
+  border: 1px solid #444;
+  border-radius: 8px;
+  color: white;
+  font-size: 1rem;
+}
+.input-group-row {
+  display: flex;
+  gap: 10px;
+}
+
+/* Butonlar */
+.modal-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+.btn-cancel {
+  flex: 1;
+  background: #333;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.btn-save {
+  flex: 2;
+  background: #4caf50;
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+}
+.btn-save:hover {
+  background: #45a049;
+}
+
+/* Silme Butonu (Kartın İçine Eklenecek) */
+.delete-btn {
+  margin-top: 10px;
+  background: transparent;
+  border: 1px solid #ff4444;
+  color: #ff4444;
+  padding: 4px 10px;
+  font-size: 0.7rem;
+  border-radius: 4px;
+  cursor: pointer;
+  width: 100%;
+}
+.delete-btn:hover {
+  background: #ff4444;
+  color: white;
+}
+/* --- SABİT ÜST PANEL (STICKY HEADER) --- */
+.sticky-header {
+  position: sticky; /* Sihirli kod: Kaydırınca yapışır */
+  top: 0; /* En tepeye yapış */
+  z-index: 100; /* Arabaların üstünde kalsın */
+  background: #1a1a20; /* Arka plan rengi (Şeffaf olursa yazılar karışır) */
+  padding-top: 20px;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Altına ince çizgi */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5); /* Hafif gölge atalım */
+}
+
+/* Küçük bir ayar: Eğer ana arka plan rengin farklıysa */
+/* background: #1a1a20; kısmını senin sitenin ana rengiyle aynı yapmalısın. */
+/* Eğer siyah kullanıyorsan background: #000; yap. */
+/* --- MARKAYA ÖZEL BUTON RENKLERİ --- */
+/* --- YEŞİL BUTON İÇİN KESİN ÇÖZÜM (V3.0) --- */
+
+/* *= operatörü "İçinde geçiyorsa" demektir. 
+   Böylece "Greenlight " (boşluklu) veya "GREENLIGHT" olsa bile yakalar.
+*/
+
+/* --- YEŞİL BUTON (TÜRKÇE İ HARFİ DESTEKLİ) --- */
+.maker-btn[data-maker="Greenlight"].active,
+.maker-btn[data-maker="GREENLIGHT"].active,
+.maker-btn[data-maker="GREENLİGHT"].active {
+  /* <--- İşte sihirli satır */
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
+  border-color: #38ef7d !important;
+  color: white !important;
+  box-shadow: 0 0 20px rgba(56, 239, 125, 0.6) !important;
+  transform: scale(1.05);
+}
+/* --- HAVALI MARKALAR (NEON EFEKTLERİ) --- */
+
+/* HOT WHEELS: Elektrik Mavisi & Cyan */
+/* "Hot" kelimesini içeren her şeyi yakalar (Büyük/Küçük harf fark etmez) */
+.maker-btn[data-maker*="Hot"].active,
+.maker-btn[data-maker*="HOT"].active,
+.maker-btn[data-maker*="hot"].active {
+  background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%) !important;
+  border-color: #00c6ff !important;
+  color: white !important;
+  /* Mavi Neon Parlaması */
+  box-shadow: 0 0 20px rgba(0, 198, 255, 0.6) !important;
+  transform: scale(1.05);
+  font-weight: 800; /* Daha kalın yazı */
+  letter-spacing: 1px;
+}
+
+/* MATCHBOX: Macera Turuncusu & Altın Sarısı */
+/* "Match" kelimesini içeren her şeyi yakalar */
+.maker-btn[data-maker*="Match"].active,
+.maker-btn[data-maker*="MATCH"].active,
+.maker-btn[data-maker*="match"].active {
+  background: linear-gradient(135deg, #f09819 0%, #ff512f 100%) !important;
+  border-color: #f09819 !important;
+  color: white !important;
+  /* Turuncu Neon Parlaması */
+  box-shadow: 0 0 20px rgba(240, 152, 25, 0.6) !important;
+  transform: scale(1.05);
+  font-weight: 800;
+}
+
+/* GREENLIGHT: Zehir Yeşili (Bunu zaten eklemiştin, dursun) */
+.maker-btn[data-maker*="Green"].active,
+.maker-btn[data-maker*="GREEN"].active {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
+  border-color: #38ef7d !important;
+  color: white !important;
+  box-shadow: 0 0 20px rgba(56, 239, 125, 0.6) !important;
+  transform: scale(1.05);
+  font-weight: 800;
+}
+/* --- HEPSİ BUTONU (SONSUZLUK EFEKTİ) --- */
+/* Listenin ilk butonu her zaman HEPSİ butonudur */
+.maker-controls .maker-btn:first-child.active {
+  /* Mor ve Mavi arası kozmik geçiş */
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  border-color: #a855f7 !important;
+  color: white !important;
+
+  /* Mor Işıltı */
+  box-shadow: 0 0 25px rgba(168, 85, 247, 0.6) !important;
+
+  transform: scale(1.05);
+  font-weight: 900; /* Çok kalın yazı */
+  letter-spacing: 1px;
+  z-index: 10; /* Diğerlerinin üstüne çıksın */
+}
+
+/* İstersen üzerine gelince (Hover) daha da parlasın */
+.maker-controls .maker-btn:first-child:hover {
+  box-shadow: 0 0 35px rgba(168, 85, 247, 0.8) !important;
+}
+/* --- 1. SADE İSTATİSTİK KUTULARI --- */
+.stats-cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 eşit parça */
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.stat-card {
+  background: #1a1a20; /* Koyu gri, şeffaf değil */
+  border: 1px solid #333;
+  padding: 20px 10px;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: white;
+  display: block;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #999;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+/* Ortadaki kutuyu (Sahip Olunan) hafifçe öne çıkaralım */
+.stat-card.highlight {
+  border-color: #4caf50; /* Sadece çerçevesi yeşil olsun */
+  background: #1e2520; /* Çok hafif yeşilimsi siyah */
+}
+.stat-card.highlight .stat-value {
+  color: #4caf50;
+}
+
+/* --- 2. SADE FİLTRE BUTONLARI --- */
+.view-controls {
+  display: flex;
+  justify-content: center; /* Ortala */
+  gap: 10px;
+  margin-bottom: 20px;
+  background: transparent; /* Arka plan yok */
+  padding: 0;
+  border: none;
+}
+
+.view-controls .btn {
+  background: #222;
+  border: 1px solid #444;
+  color: #ccc;
+  padding: 10px 25px;
+  border-radius: 50px; /* Hap şeklinde yuvarlak */
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex: none; /* Genişlemesin, yazısı kadar yer kaplasın */
+}
+
+.view-controls .btn:hover {
+  background: #333;
+  color: white;
+}
+
+/* AKTİF DURUM (Sadece Yazı Rengi Değişsin, Sade Olsun) */
+.view-controls .btn.active {
+  background: white;
+  color: black;
+  border-color: white;
+  font-weight: bold;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+  transform: none; /* Büyüme efekti yok */
+}
+
+/* Garajım'a basınca Yeşil olsun */
+#btn-owned.active {
+  background: #4caf50;
+  border-color: #4caf50;
+  color: white;
+  box-shadow: 0 0 10px rgba(76, 175, 80, 0.4);
+}
+
+/* Eksikler'e basınca Kırmızı olsun */
+#btn-missing.active {
+  background: #ff4444;
+  border-color: #ff4444;
+  color: white;
+  box-shadow: 0 0 10px rgba(255, 68, 68, 0.4);
 }
