@@ -990,3 +990,44 @@ body {
     white-space: nowrap; /* Yazı alt satıra inmesin */
   }
 }
+/* --- MOBİL İSTATİSTİK DÜZELTMESİ (SON VE KESİN) --- */
+@media (max-width: 768px) {
+  /* Üst kısmı alt alta sırala */
+  .stats-header {
+    flex-direction: column !important;
+    align-items: stretch !important; /* Genişliği fulle */
+    padding: 0 10px !important; /* Kenar boşluklarını daralt */
+  }
+
+  /* Kapsayıcı kutuyu ekrana sığdır */
+  .stats-cards {
+    display: flex !important;
+    flex-wrap: nowrap !important; /* Asla aşağı inme */
+    overflow-x: hidden !important; /* Kaydırmayı yasakla */
+    width: 100% !important;
+    gap: 5px !important; /* Aralarındaki boşluk çok az olsun */
+    justify-content: space-between !important; /* Eşit dağıt */
+  }
+
+  /* Kutuların kendisi */
+  .stat-card {
+    flex: 1 1 0px !important; /* Eşit bölüş ve küçülebildiğin kadar küçül */
+    min-width: 0 !important; /* İŞTE KİLİT NOKTA: Minimum genişliği sıfırla! */
+    width: auto !important;
+    padding: 10px 2px !important; /* İç boşluğu iyice azalt */
+    margin: 0 !important;
+  }
+
+  /* Rakamlar */
+  .stat-value {
+    font-size: 1.1rem !important; /* Rakamları biraz ufalt */
+    margin-bottom: 2px !important;
+  }
+
+  /* Alt yazılar */
+  .stat-label {
+    font-size: 0.55rem !important; /* Yazıları pire kadar yap sığsın */
+    letter-spacing: 0 !important;
+    white-space: nowrap !important; /* Yazı alt satıra inmesin */
+  }
+}
